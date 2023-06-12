@@ -52,6 +52,18 @@ void loadQuestions(GameData* gameData) {
     gameData->questionCount = questionIndex;
 
     fclose(file);
-
+   
     shuffleQuestions(gameData->questions, gameData->questionCount);
+}
+
+void revealLetter(char* hiddenAnswer, const char* answer, char letter, int* score, int* revealedLetterCount) {
+    int letterCount = 0;
+    for (int i = 0; i < strlen(answer); i++) {
+        if (answer[i] == letter) {
+            hiddenAnswer[i] = letter;
+            letterCount++;
+            (*revealedLetterCount)++;
+        }
+    }
+    *score -= letterCount * LETTER_SCORE;
 }
