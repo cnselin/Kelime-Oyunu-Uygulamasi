@@ -37,3 +37,21 @@ void loadQuestions(GameData* gameData) {
         printf("Sorular dosyasi bulunamadi.\n");
         exit(1);
     }
+    
+    char line[150];
+    int questionIndex = 0;
+    while (fgets(line, sizeof(line), file)) {
+        line[strcspn(line, "\r\n")] = '\0'; // Satır sonundaki geçersiz karakterleri temizler
+        char* question = strtok(line, ",");
+        char* answer = strtok(NULL, ",");
+        strcpy(gameData->questions[questionIndex].question, question);
+        strcpy(gameData->questions[questionIndex].answer, answer);
+        questionIndex++;
+    }
+
+    gameData->questionCount = questionIndex;
+
+    fclose(file);
+
+    shuffleQuestions(gameData->questions, gameData->questionCount);
+}
