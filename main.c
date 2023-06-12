@@ -67,3 +67,93 @@ void revealLetter(char* hiddenAnswer, const char* answer, char letter, int* scor
     }
     *score -= letterCount * LETTER_SCORE;
 }
+void playGame(GameData* gameData, const char* playerName) {
+    int totalScore = 0;
+    int remainingTime = MAX_TIME;
+
+    srand(time(NULL));
+
+    for (int i = 0; i < gameData->questionCount; i++) {
+        Question currentQuestion = gameData->questions[i];
+        printf("\nSoru %d: %s\n", i + 1, currentQuestion.question);
+
+        char hiddenAnswer[MAX_ANSWER_LENGTH + 1];
+        for (int j = 0; j < strlen(currentQuestion.answer); j++) {
+            hiddenAnswer[j] = '_';
+        }
+        hiddenAnswer[strlen(currentQuestion.answer)] = '\0';
+
+        printf("Cevap: ");
+        for (int j = 0; j < strlen(hiddenAnswer); j++) {
+            printf("%c ", hiddenAnswer[j]);
+        }
+        printf("\n");
+
+        int attempt = 1;
+        int timeLeft = QUESTION_TIME;
+        int revealedLetterCount = 0;
+        time_t questionStartTime = time(NULL);
+
+        int questionFinished = 0;  // Sorunun tamamlanıp tamamlanmadığının kontrolü
+
+        while (timeLeft > 0 && !questionFinished) {
+            time_t currentTime = time(NULL);
+            int elapsedSeconds = difftime(currentTime, questionStartTime);
+            timeLeft = QUESTION_TIME - elapsedSeconds;
+
+            if (timeLeft <= 0) {
+                printf("Süre doldu! Oyun bitti.\n");
+                break;
+            }
+
+            printf("Kalan Süre: %d saniye\n", timeLeft);
+            printf("Toplam Kalan Süre: %d saniye\n", remainingTime - elapsedSeconds);
+
+            char guess[MAX_ANSWER_LENGTH];
+            printf("\nTahmininizi girin: ");
+            scanf("%s", guess);
+
+            if (strstr(currentQuestion.answer, guess) != NULL) {
+                int score = 100 * strlen(currentQuestion.answer);
+                totalScore += score;
+                totalScore -= revealedLetterCount * LETTER_SCORE; // Her yanlış tahminde açılan harf sayısı * 20 puanı toplam puandan çıkar
+
+                printf("Doğru cevap! Puan: %d\n", totalScore);
+                questionFinished = 1;  // Soru tamamlandı
+            } else if (strcmp(guess, "harf") == 0) {
+                if (attempt > strlen(currentQuestion.answer)) {
+                    printf("Tüm harfler açıklandı!\n");
+                    questionFinished = 1;  // Soru tamamlandı
+                } else {
+                    char randomLetter;
+                    do {
+                        randomLetter = currentQuestion.answer[rand() % strlen(currentQuestion.answer)];
+                    } while (strchr(hiddenAnswer, randomLetter) != NULL);
+
+                    revealLetter(hiddenAnswer, currentQuestion.answer, randomLetter, &totalScore, &revealedLetterCount);
+                    printf("Açılan harf: %c\n", randomLetter);
+                    printf("Cevap: ");
+                    for (int j = 0; j < strlen(hiddenAnswer); j++) {
+                        printf("%c ", hiddenAnswer[j]);
+                    }
+                    printf("\n");
+
+                    attempt++;
+                }
+            } else {
+                printf("Yanlış tahmin! Tekrar deneyin.\n");
+                totalScore -= revealedLetterCount * LETTER_SCORE; // Her yanlış tahminde açılan harf sayısı * 20 puanı toplam puandan çıkar
+                printf("Puan: %d\n", totalScore);
+            }
+        }
+
+        remainingTime -= QUESTION_TIME;
+    }
+
+    printf("\nOyun bitti!\n");
+    printf("Oyuncu Adı: %s\n", playerName);
+    printf("Puanınız: %d\n", totalScore);
+    printf("Kalan Süre: %d saniye\n", MAX_TIME - (totalScore / 100));
+    time_t currentTime = time(NULL);
+    printf("Oynama Tarihi ve Saati: %s", ctime(&currentTime));
+}
