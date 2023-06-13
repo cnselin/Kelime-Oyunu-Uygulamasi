@@ -157,3 +157,30 @@ void playGame(GameData* gameData, const char* playerName) {
     time_t currentTime = time(NULL);
     printf("Oynama Tarihi ve Saati: %s", ctime(&currentTime));
 }
+
+int main() {
+    GameData gameData;
+    gameData.questionCount = 0;
+    gameData.score = 0;
+
+    loadQuestions(&gameData);
+
+    printf("---------Hoş Geldiniz!----------\n\n");
+    printf("-Öncelikle yarışmanın kuralları ile başlayalım!\n\n");
+    printf("-Yarışmamız 240 saniyedir, toplamda 14 soru ve cevap bulunmaktadır.\n\n");
+    printf("-Sorular ekrana geldiğinde cevap için çizgiler de ekrana yazacaktır.\n\n");
+    printf("-Tahminde bulunmak için 20 saniye süreniz bulunmaktadır, doğru bilirseniz diğer soruya geçeriz ve 20 saniyelik süre yenilenir.\n\n");
+    printf("-Eğer harf isterseniz tahminde bulunacağınız kısma 'harf' yazmaniz yeterli. Rastgele bir harf açılacak ve sorunun puanından açılan harf sayısı * 20 puan azalacaktır.\n\n");
+    printf("-Soruların cevaplarını küçük harflerle yazmalısınız!\n\n");
+    printf("-Başarılar ve iyi eğlenceler dileriz...\n\n");
+    printf("---------------------------------\n\n");
+    printf("KELİME OYUNU BAŞLIYOR!!!\n");
+
+    char playerName[50];
+    printf("Oyuncu Adınızı Girin: ");
+    scanf("%s", playerName);
+
+    playGame(&gameData, playerName);
+
+    return 0;
+}
