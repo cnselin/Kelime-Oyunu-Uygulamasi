@@ -94,20 +94,21 @@ void playGame(GameData* gameData, const char* playerName) {
         int revealedLetterCount = 0;
         time_t questionStartTime = time(NULL);
 
-        int questionFinished = 0;  // Sorunun tamamlanıp tamamlanmadığının kontrolü
+        int questionFinished = 0;  // Sorunun tamamlanıp tamamlanmadığını kontrol etmek için bir bayrak
 
         while (timeLeft > 0 && !questionFinished) {
             time_t currentTime = time(NULL);
             int elapsedSeconds = difftime(currentTime, questionStartTime);
             timeLeft = QUESTION_TIME - elapsedSeconds;
+            int remainingTotalTime = remainingTime - elapsedSeconds;
 
-            if (timeLeft <= 0) {
+            if (timeLeft <= 0 || remainingTotalTime <= 0) {
                 printf("Süre doldu! Oyun bitti.\n");
-                break;
+                return;
             }
 
             printf("Kalan Süre: %d saniye\n", timeLeft);
-            printf("Toplam Kalan Süre: %d saniye\n", remainingTime - elapsedSeconds);
+            printf("Toplam Kalan Süre: %d saniye\n", remainingTotalTime);
 
             char guess[MAX_ANSWER_LENGTH];
             printf("\nTahmininizi girin: ");
@@ -147,17 +148,16 @@ void playGame(GameData* gameData, const char* playerName) {
             }
         }
 
-        remainingTime -= QUESTION_TIME;
+        remainingTime -= difftime(time(NULL), questionStartTime);
     }
 
     printf("\nOyun bitti!\n");
     printf("Oyuncu Adı: %s\n", playerName);
     printf("Puanınız: %d\n", totalScore);
-    printf("Kalan Süre: %d saniye\n", MAX_TIME - (totalScore / 100));
+    printf("Kalan Süre: %d saniye\n", remainingTime);
     time_t currentTime = time(NULL);
     printf("Oynama Tarihi ve Saati: %s", ctime(&currentTime));
 }
-
 int main() {
     GameData gameData;
     gameData.questionCount = 0;
